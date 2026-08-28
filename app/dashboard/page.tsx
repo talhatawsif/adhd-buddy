@@ -52,6 +52,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <SignOutButton />
+        <a href="/focus" className="text-sm underline text-zinc-600 dark:text-zinc-400">Focus →</a>
       </header>
       <QuickCapture
         userId={data.user.id}
