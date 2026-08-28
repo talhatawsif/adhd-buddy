@@ -23,6 +23,24 @@ export default async function DashboardPage() {
 
   const initialEntries = (entriesData ?? []) as Entry[];
 
+  const entryIds = initialEntries.map((e) => e.id);
+  const initialSubtasks: Record<string, any[]> = {};
+
+  if (entryIds.length > 0) {
+    const { data: subtasksData } = await supabase
+      .from("subtasks")
+      .select("*")
+      .in("entry_id", entryIds)
+      .order("order", { ascending: true });
+
+    for (const subtask of subtasksData ?? []) {
+      if (!initialSubtasks[subtask.entry_id]) {
+        initialSubtasks[subtask.entry_id] = [];
+      }
+      initialSubtasks[subtask.entry_id].push(subtask);
+    }
+  }
+
   return (
     <main className="mx-auto flex min-h-full w-full max-w-2xl flex-col gap-8 px-6 py-16">
       <header className="flex items-start justify-between gap-4">
@@ -35,7 +53,11 @@ export default async function DashboardPage() {
         </div>
         <SignOutButton />
       </header>
-      <QuickCapture userId={data.user.id} initialEntries={initialEntries} />
+      <QuickCapture
+        userId={data.user.id}
+        initialEntries={initialEntries}
+        initialSubtasks={initialSubtasks}
+      />
     </main>
   );
 }
