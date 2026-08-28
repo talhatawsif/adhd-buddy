@@ -143,6 +143,23 @@ export function FocusSession({
 
   const completedCount = sessions.filter((s) => s.ended_at).length;
 
+  function calculateStreak(): number {
+    const days = new Set(
+      sessions
+        .filter((s) => s.ended_at)
+        .map((s) => new Date(s.started_at).toDateString()),
+    );
+    let streak = 0;
+    let cursor = new Date();
+    while (days.has(cursor.toDateString())) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
+  }
+
+  const streak = calculateStreak();
+
   return (
     <section className="flex flex-col gap-6">
       <h2 className="text-lg font-semibold">Focus Session</h2>
@@ -245,7 +262,7 @@ export function FocusSession({
 
       <div>
         <p className="mb-2 text-sm text-zinc-500">
-          {completedCount} session{completedCount === 1 ? "" : "s"} completed
+          {completedCount} session{completedCount === 1 ? "" : "s"} completed{streak > 0 ? ` · 🔥 ${streak} day streak` : ""}
         </p>
         {sessions.length === 0 ? (
           <p className="text-sm text-zinc-500">No sessions yet.</p>

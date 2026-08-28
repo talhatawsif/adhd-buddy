@@ -36,6 +36,7 @@ export function QuickCapture({
     null,
   );
   const [breakdownText, setBreakdownText] = useState("");
+  const [remindedFor, setRemindedFor] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -148,6 +149,21 @@ export function QuickCapture({
     }
   }
 
+  async function addReminder(entryId: string) {
+    const supabase = createClient();
+    const { error: insertError } = await supabase.from("reminders").insert({
+      entry_id: entryId,
+      next_trigger_at: new Date(Date.now() + 10 * 60000).toISOString(),
+      interval_minutes: 10,
+    });
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+    setRemindedFor((current) => ({ ...current, [entryId]: true }));
+  }
+
   return (
     <section className="flex flex-col gap-6">
       <form onSubmit={capture} className="flex gap-2">
@@ -176,12 +192,13 @@ export function QuickCapture({
         <ul className="flex flex-col gap-3">
           {entries.map((entry) => {
             const subtasks = subtasksByEntry[entry.id] ?? [];
+            const reminded = remindedFor[entry.id];
             return (
               <li
                 key={entry.id}
                 className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
-                <p className="whitespacpre-wrap text-sm">{entry.content}</p>
+                <p className="whitespace-pre-wrap text-sm">{entry.content}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {ENTRY_CATEGORIES.map((category) => {
                     const selected = entry.category === category;
@@ -200,6 +217,14 @@ export function QuickCapture({
                       </button>
                     );
                   })}
+                  <button
+                    type="button"
+                    disabled={reminded}
+                    onClick={() => addReminder(entry.id)}
+                    className="rounded-full border border-zinc-300 px-2.5 py-1 text-xs text-zinc-600 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-400"
+                  >
+                    {reminded ? "Reminder set" : "Remind me"}
+                  </button>
                 </div>
 
                 {entry.category === "Needs breakdown" ? (

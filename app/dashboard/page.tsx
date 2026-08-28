@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
 import { QuickCapture } from "@/components/quick-capture";
+import { Reminders } from "@/components/reminders";
 import type { Entry } from "@/lib/entries";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,7 @@ export default async function DashboardPage() {
         <SignOutButton />
         <a href="/focus" className="text-sm underline text-zinc-600 dark:text-zinc-400">Focus →</a>
       </header>
+      <Reminders userId={data.user.id} />
       <QuickCapture
         userId={data.user.id}
         initialEntries={initialEntries}
