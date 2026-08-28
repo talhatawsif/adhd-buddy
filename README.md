@@ -1,42 +1,63 @@
 # ADHD Buddy
 
-Focus companion app: dump a thought, sort it later, break it into next actions, then sit down and work.
+Capture thoughts. Break them down. Focus.
 
-**Stack:** Next.js (App Router, TypeScript), Tailwind CSS, Supabase (Auth + Postgres), Vercel.
+A small companion app for ADHD task management, built around a specific idea:
+the hard part usually isn't finishing a task, it's starting one. Every feature
+here targets that initiation gap rather than the usual "keep the user on
+task" approach most productivity apps take.
 
-## Phase 0 status
+**Live:** https://adhd-buddy.vercel.app
 
-Email/password sign-up, login, logout, and an empty dashboard. Quick Capture starts in Phase 1.
+## Why this exists
 
-## Local setup
+Most task apps assume the bottleneck is discipline or sustained focus. For
+ADHD specifically, task initiation is a distinct and well-documented
+executive-function challenge, separate from sustaining attention once
+started. Every feature below was designed around that gap, not bolted on
+after the fact.
 
-1. Copy env vars:
+## Features
 
-   ```bash
-   cp .env.example .env.local
-   ```
+- **Quick Capture** — zero-friction input, no forced categorization at the
+  moment of capture. Sort later, not while the thought is still forming.
+- **Task Breakdown** — manual-first: the user writes their own 3-5 concrete
+  next steps. Grounded in behavioral activation, an elished therapeutic
+  technique of reducing a task to its smallest actionable unit to lower the
+  barrier to starting. (AI-assisted suggestions are a natural next step, but
+  manual-first was chosen deliberately, so the mechanism stays understandable
+  rather than being outsourced entirely to a model from day one.)
+- **Focus Sessions** — a 5-minute "runway" countdown before the timer starts,
+  aimed at bypassing initiation friction rather than jumping straight into a
+  potentially intimidating 25-minute block. Sessions log planned vs. actual
+  time and end with a short "what did you actually get done" prompt.
+- **Focus Streak** — rewards consistency (days with at least one completed
+  session), deliberately not raw session length. A "longest session ever"
+  leaderboard would gamify hyperfocus, which for ADHD specifically can mean
+  skipped meals, meds, or transitions — a risk pattern, not something to
+  reward.
+- **Adaptive Reminders** — reminders that back off instead of repeating
+  identically (10 min → 30 min → 1 hr → next day) when dismissed, to avoid
+  the notification-blindness effect of standard nagging remta handling
 
-2. Create a free [Supabase](https://supabase.com) project (Sydney region). From **Project Settings → API**, paste:
+Every table is scoped with Postgres Row Level Security — a user can only
+read or write their own rows, enforced at the database level, not just in
+application code. Subtasks and reminders are scoped through their parent
+entry's ownership rather than carrying their own `user_id`, since they only
+ever exist in relation to an entry.
 
-   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-   - Publishable key (or legacy anon key) → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+This project doesn't handle real patient data and makes no clinical claims.
+The data model was designed with an awareness of Australian privacy
+principles (the Privacy Act) as a general practice for anything touching
+personal information, not because this qualifies as regulated health
+software.
 
-3. In Supabase **Authentication → URL configuration**:
+## Tech stack
 
-   - Site URL: `http://localhost:3000`
-   - Redirect URLs: `http://localhost:3000/auth/confirm` (add the Vercel URL later)
+Next.js (App Router, TypeScript), Tailwind CSS, Supabase (Auth + Postgres,
+Row Level Security), deployed on Vercel.
 
-4. For the fastest checkpoint, turn **off** “Confirm email” under **Authentication → Providers → Email** so a new user lands on the dashboard immediately.
+## Status
 
-5. Run the app:
-
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-Open [http://localhost:3000](http://localhost:3000), sign up, log in, and confirm the dashboard shows **Logged in as** your email.
-
-## Deploy
-
-Connect this repo to Vercel. Add the same two `NEXT_PUBLIC_SUPABASE_*` env vars in the Vercel project, then add the production URL to Supabase redirect URLs (`https://your-app.vercel.app/auth/confirm`) and Site URL.
+All core phases (auth, capture, breakdown, focus sessions, adaptive
+reminders) are built, deployed, and tested end-to-end in production.
