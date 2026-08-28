@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
+import { QuickCapture } from "@/components/quick-capture";
+import type { Entry } from "@/lib/entries";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,13 @@ export default async function DashboardPage() {
 
   const label = data.user.email ?? data.user.id;
 
+  const { data: entriesData } = await supabase
+    .from("entries")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const initialEntries = (entriesData ?? []) as Entry[];
+
   return (
     <main className="mx-auto flex min-h-full w-full max-w-2xl flex-col gap-8 px-6 py-16">
       <header className="flex items-start justify-between gap-4">
@@ -26,9 +35,7 @@ export default async function DashboardPage() {
         </div>
         <SignOutButton />
       </header>
-      <section className="rounded-lg border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-        Nothing here yet. Quick Capture comes in Phase 1.
-      </section>
+      <QuickCapture userId={data.user.id} initialEntries={initialEntries} />
     </main>
   );
 }
