@@ -22,7 +22,7 @@ after the fact.
 - **Quick Capture** — zero-friction input, no forced categorization at the
   moment of capture. Sort later, not while the thought is still forming.
 - **Task Breakdown** — manual-first: the user writes their own 3-5 concrete
-  next steps. Grounded in behavioral activation, an elished therapeutic
+  next steps. Grounded in behavioral activation, an established therapeutic
   technique of reducing a task to its smallest actionable unit to lower the
   barrier to starting. (AI-assisted suggestions are a natural next step, but
   manual-first was chosen deliberately, so the mechanism stays understandable
@@ -38,7 +38,7 @@ after the fact.
   reward.
 - **Adaptive Reminders** — reminders that back off instead of repeating
   identically (10 min → 30 min → 1 hr → next day) when dismissed, to avoid
-  the notification-blindness effect of standard nagging remta handling
+  the notification-blindness effect of standard nagging reminders.
 
 Every table is scoped with Postgres Row Level Security — a user can only
 read or write their own rows, enforced at the database level, not just in
