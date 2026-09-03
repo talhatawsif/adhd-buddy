@@ -36,6 +36,20 @@ function formatDelta(fromIso: string, toIso: string): string {
   return remHours > 0 ? `${days}d ${remHours}h later` : `${days}d later`;
 }
 
+function formatDuration(ms: number): string {
+  const minutes = Math.round(ms / 60000);
+  if (minutes < 1) return "under a minute";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const remMinutes = minutes % 60;
+  if (hours < 24) {
+    return remMinutes > 0 ? `${hours}h ${remMinutes}m` : `${hours}h`;
+  }
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours > 0 ? `${days}d ${remHours}h` : `${days}d`;
+}
+
 function firstCompletedAt(subtasks: SubtaskLite[] | undefined): string | null {
   if (!subtasks || subtasks.length === 0) return null;
   const times = subtasks
@@ -118,6 +132,15 @@ export function TaskTimeline({ entries, subtasksByEntry }: TaskTimelineProps) {
                   );
                 })}
               </ol>
+              {entry.finished_at && entry.first_action_at ? (
+                <p className="pl-4 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                  Total time:{" "}
+                  {formatDuration(
+                    new Date(entry.finished_at).getTime() -
+                      new Date(entry.first_action_at).getTime(),
+                  )}
+                </p>
+              ) : null}
             </li>
           );
         })}
