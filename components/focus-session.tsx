@@ -79,6 +79,9 @@ export function FocusSession({
     setStartedAt(new Date());
     setSecondsLeft(plannedMinutes * 60);
     clearTimer();
+    if (selectedEntryId) {
+      stampFirstFocusStarted(selectedEntryId);
+    }
     intervalRef.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -89,6 +92,15 @@ export function FocusSession({
         return s - 1;
       });
     }, 1000);
+  }
+
+  async function stampFirstFocusStarted(entryId: string) {
+    const supabase = createClient();
+    await supabase
+      .from("entries")
+      .update({ first_focus_started_at: new Date().toISOString() })
+      .eq("id", entryId)
+      .is("first_focus_started_at", null);
   }
 
   function stopEarly() {

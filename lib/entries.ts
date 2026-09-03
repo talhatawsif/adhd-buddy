@@ -13,6 +13,8 @@ export type Entry = {
   category: string | null;
   created_at: string;
   first_action_at: string | null;
+  first_focus_started_at: string | null;
+  finished_at: string | null;
 };
 
 const urgentHints = [
