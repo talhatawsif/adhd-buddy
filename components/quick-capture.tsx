@@ -15,6 +15,7 @@ type Subtask = {
   content: string;
   is_done: boolean;
   order: number;
+  completed_at: string | null;
 };
 
 type QuickCaptureProps = {
@@ -145,22 +146,53 @@ export function QuickCapture({
 
   async function toggleSubtask(entryId: string, subtask: Subtask) {
     const previous = subtasksByEntry;
+    const newDone = !subtask.is_done;
+    const completedAt = newDone ? new Date().toISOString() : null;
+
+    const updatedSubtasks = (subtasksByEntry[entryId] ?? []).map((s) =>
+      s.id === subtask.id
+        ? { ...s, is_done: newDone, completed_at: completedAt }
+        : s,
+    );
+
     setSubtasksByEntry((current) => ({
       ...current,
-      [entryId]: current[entryId].map((s) =>
-        s.id === subtask.id ? { ...s, is_done: !s.is_done } : s,
-      ),
+      [entryId]: updatedSubtasks,
     }));
 
     const supabase = createClient();
     const { error: updateError } = await supabase
       .from("subtasks")
-      .update({ is_done: !subtask.is_done })
+      .update({ is_done: newDone, completed_at: completedAt })
       .eq("id", subtask.id);
 
     if (updateError) {
       setSubtasksByEntry(previous);
       setError(updateError.message);
+      return;
+    }
+
+    const allDone =
+      updatedSubtasks.length > 0 && updatedSubtasks.every((s) => s.is_done);
+
+    if (allDone) {
+      const targetEntry = entries.find((e) => e.id === entryId);
+      if (targetEntry && !targetEntry.finished_at) {
+        const finishedAt = new Date().toISOString();
+        const { error: finishError } = await supabase
+          .from("entries")
+          .update({ finished_at: finishedAt })
+          .eq("id", entryId)
+          .is("finished_at", null);
+
+        if (!finishError) {
+          setEntries((current) =>
+            current.map((e) =>
+              e.id === entryId ? { ...e, finished_at: finishedAt } : e,
+            ),
+          );
+        }
+      }
     }
   }
 
