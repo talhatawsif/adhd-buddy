@@ -107,6 +107,29 @@ export function QuickCapture({
     }
   }
 
+  async function toggleEntryDone(entry: Entry) {
+    const previous = entries;
+    const newDone = !entry.finished_at;
+    const finishedAt = newDone ? new Date().toISOString() : null;
+
+    setEntries((current) =>
+      current.map((e) =>
+        e.id === entry.id ? { ...e, finished_at: finishedAt } : e,
+      ),
+    );
+
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("entries")
+      .update({ finished_at: finishedAt })
+      .eq("id", entry.id);
+
+    if (updateError) {
+      setEntries(previous);
+      setError(updateError.message);
+    }
+  }
+
   function openBreakdown(entryId: string) {
     setBreakdownOpenFor(entryId);
     setBreakdownText("");
@@ -245,7 +268,21 @@ export function QuickCapture({
                 key={entry.id}
                 className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
-                <p className="whitespace-pre-wrap text-sm">{entry.content}</p>
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!entry.finished_at}
+                    onChange={() => toggleEntryDone(entry)}
+                    className="mt-1"
+                  />
+                  <p
+                    className={`whitespace-pre-wrap text-sm ${
+                      entry.finished_at ? "text-zinc-400 line-through" : ""
+                    }`}
+                  >
+                    {entry.content}
+                  </p>
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {ENTRY_CATEGORIES.map((category) => {
                     const selected = entry.category === category;
