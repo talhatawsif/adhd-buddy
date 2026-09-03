@@ -40,6 +40,8 @@ after the fact.
   identically (10 min → 30 min → 1 hr → next day) when dismissed, to avoid
   the notification-blindness effect of standard nagging reminders.
 
+## Data & Privacy
+
 Every table is scoped with Postgres Row Level Security — a user can only
 read or write their own rows, enforced at the database level, not just in
 application code. Subtasks and reminders are scoped through their parent
