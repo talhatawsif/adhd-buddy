@@ -73,16 +73,31 @@ export function QuickCapture({
 
   async function setCategory(id: string, category: EntryCategory) {
     const previous = entries;
+    const target = entries.find((entry) => entry.id === id);
+    const isFirstAction = !!target && !target.first_action_at;
+    const nowIso = new Date().toISOString();
+
     setEntries((current) =>
       current.map((entry) =>
-        entry.id === id ? { ...entry, category } : entry,
+        entry.id === id
+          ? {
+              ...entry,
+              category,
+              first_action_at: isFirstAction ? nowIso : entry.first_action_at,
+            }
+          : entry,
       ),
     );
 
     const supabase = createClient();
+    const updatePayload: Record<string, unknown> = { category };
+    if (isFirstAction) {
+      updatePayload.first_action_at = nowIso;
+    }
+
     const { error: updateError } = await supabase
       .from("entries")
-      .update({ category })
+      .update(updatePayload)
       .eq("id", id);
 
     if (updateError) {

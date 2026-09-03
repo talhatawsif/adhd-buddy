@@ -12,6 +12,7 @@ export type Entry = {
   content: string;
   category: string | null;
   created_at: string;
+  first_action_at: string | null;
 };
 
 const urgentHints = [
