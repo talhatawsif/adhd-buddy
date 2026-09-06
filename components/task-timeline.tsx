@@ -23,7 +23,7 @@ function formatAbsolute(iso: string): string {
 
 function formatDelta(fromIso: string, toIso: string): string {
   const ms = new Date(toIso).getTime() - new Date(fromIso).getTime();
-  if (ms < 0) return "—";
+  if (ms < 0) return "earlier than the previous step";
   const minutes = Math.round(ms / 60000);
   if (minutes < 1) return "moments later";
   if (minutes < 60) return `${minutes}m later`;
