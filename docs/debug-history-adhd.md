@@ -9,9 +9,8 @@ following a tutorial) and as a reference if similar issues come up again.
 ## Pattern Summary
 
 Of the issues below, more than half (paste/heredoc reliability + environment
-config) came from the **terminal-only workflow** (used when Cursor's AI usage
-limit was hit) or **credential/environment configuration** — not from logic
-errors in the application code itself. The core app logic (RLS policies,
+config) came from the **terminal-only workflow** or **credential/environment
+configuration** — not from logic errors in the application code itself. The core app logic (RLS policies,
 React state management, timer logic, backoff scheduling) worked correctly on
 the first or second real attempt each time it was tested.
 
