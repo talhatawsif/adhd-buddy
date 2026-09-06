@@ -7,6 +7,9 @@ type SubtaskLite = {
 type TaskTimelineProps = {
   entries: Entry[];
   subtasksByEntry: Record<string, SubtaskLite[]>;
+  limit?: number;
+  title?: string;
+  subtitle?: string;
 };
 
 function formatAbsolute(iso: string): string {
@@ -59,11 +62,19 @@ function firstCompletedAt(subtasks: SubtaskLite[] | undefined): string | null {
   return times[0] ?? null;
 }
 
-export function TaskTimeline({ entries, subtasksByEntry }: TaskTimelineProps) {
-  const timelineEntries = entries
+export function TaskTimeline({
+  entries,
+  subtasksByEntry,
+  limit,
+  title = "Task Timeline",
+  subtitle = "How long each step actually took, from plan to finish.",
+}: TaskTimelineProps) {
+  const sorted = entries
     .filter((e) => e.first_action_at)
-    .sort((a, b) => (a.first_action_at! < b.first_action_at! ? 1 : -1))
-    .slice(0, 5);
+    .sort((a, b) => (a.first_action_at! < b.first_action_at! ? 1 : -1));
+
+  const timelineEntries =
+    typeof limit === "number" ? sorted.slice(0, limit) : sorted;
 
   if (timelineEntries.length === 0) {
     return null;
@@ -72,10 +83,8 @@ export function TaskTimeline({ entries, subtasksByEntry }: TaskTimelineProps) {
   return (
     <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
       <div>
-        <h2 className="text-lg font-semibold">Task Timeline</h2>
-        <p className="text-sm text-zinc-500">
-          How long each step actually took, from plan to finish.
-        </p>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className="text-sm text-zinc-500">{subtitle}</p>
       </div>
       <ul className="flex flex-col gap-5">
         {timelineEntries.map((entry) => {
