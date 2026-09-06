@@ -77,6 +77,22 @@ surrounding syntax were dropped, turning
 `sed -n '185,192p' components/quick-capture.tsx`, then fixed it directly
 with a targeted `sed -i` replacement rather than re-pasting the whole file.
 
+### 11. Multi-line `<a>` tag lost its opening `<a` during a large paste
+**Cause:** A JSX `<a>` tag written across multiple lines — `<a` alone on its
+own line, attributes on the following lines — had that opening `<a` line
+silently dropped during a big multi-command paste, even though the rest of
+the block landed fine. Confirmed with `grep -n '<a'` on the file, which came
+back empty, ruling out a display-only issue.
+**Fix:** Rewrote the tag as a single line
+(`<a href="..." className="...">Text</a>`) going forward — that style
+pasted reliably every time afterward. To repair the file that was already
+corrupted, used base64 as a one-off recovery: `base64 -i file | tr -d '\n'`
+to produce one unbreakable line, then `echo "<base64>" | base64 -d > file`
+to write it back — a single line can't be broken by the line-based paste
+issue the way multi-line content can.
+**Note:** macOS's BSD `cat` doesn't support the `-A` flag (that's GNU-only);
+used `grep -n` and `sed -n` to inspect file content precisely instead.
+
 ---
 
 ## Vercel Deployment & Environment Config

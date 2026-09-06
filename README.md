@@ -8,6 +8,7 @@ here targets that initiation gap rather than the usual "keep the user on
 task" approach most productivity apps take.
 
 **Live:** https://adhd-buddy.vercel.app
+**Version:** 0.2.0 — see [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 ## Why this exists
 
@@ -39,6 +40,15 @@ after the fact.
 - **Adaptive Reminders** — reminders that back off instead of repeating
   identically (10 min → 30 min → 1 hr → next day) when dismissed, to avoid
   the notification-blindness effect of standard nagging reminders.
+- **Task Timeline** *(v0.2.0)* — every task's actual path from plan to
+  finish, shown as four milestones with human-readable deltas instead of
+  raw timestamps, plus a total time summary once a task is fully done. This
+  is Phase 1's time-to-initiation idea made visible rather than just logged
+  silently in the database. A dedicated `/history` page shows the full
+  timeline for every task, not just the five most recent on the dashboard.
+- **Safe Deletion** *(v0.2.0)* — every task and step has a delete control,
+  gated behind a confirmation prompt, so an accidental tap doesn't wipe out
+  real progress.
 
 ## Data & Privacy
 
@@ -61,5 +71,9 @@ Row Level Security), deployed on Vercel.
 
 ## Status
 
-All core phases (auth, capture, breakdown, focus sessions, adaptive
-reminders) are built, deployed, and tested end-to-end in production.
+Actively developed — new features ship most weeks. Currently **v0.2.0**;
+see [CHANGELOG.md](CHANGELOG.md) for what shipped in each release and why.
+
+All five original build phases (auth, capture, breakdown, focus sessions,
+adaptive reminders) are complete and in production, with the Task Timeline,
+task history page, and delete controls added in v0.2.0.
