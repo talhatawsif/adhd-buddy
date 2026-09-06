@@ -130,6 +130,42 @@ export function QuickCapture({
     }
   }
 
+  async function deleteEntry(entry: Entry) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task? This can't be undone.",
+    );
+    if (!confirmed) return;
+
+    const previousEntries = entries;
+    const previousSubtasks = subtasksByEntry;
+
+    setEntries((current) => current.filter((e) => e.id !== entry.id));
+    setSubtasksByEntry((current) => {
+      const next = { ...current };
+      delete next[entry.id];
+      return next;
+    });
+
+    const supabase = createClient();
+    await supabase.from("subtasks").delete().eq("entry_id", entry.id);
+    await supabase.from("reminders").delete().eq("entry_id", entry.id);
+    await supabase
+      .from("sessions")
+      .update({ entry_id: null })
+      .eq("entry_id", entry.id);
+
+    const { error: deleteError } = await supabase
+      .from("entries")
+      .delete()
+      .eq("id", entry.id);
+
+    if (deleteError) {
+      setEntries(previousEntries);
+      setSubtasksByEntry(previousSubtasks);
+      setError(deleteError.message);
+    }
+  }
+
   function openBreakdown(entryId: string) {
     setBreakdownOpenFor(entryId);
     setBreakdownText("");
@@ -219,6 +255,30 @@ export function QuickCapture({
     }
   }
 
+  async function deleteSubtask(entryId: string, subtask: Subtask) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this step?",
+    );
+    if (!confirmed) return;
+
+    const previous = subtasksByEntry;
+    setSubtasksByEntry((current) => ({
+      ...current,
+      [entryId]: current[entryId].filter((s) => s.id !== subtask.id),
+    }));
+
+    const supabase = createClient();
+    const { error: deleteError } = await supabase
+      .from("subtasks")
+      .delete()
+      .eq("id", subtask.id);
+
+    if (deleteError) {
+      setSubtasksByEntry(previous);
+      setError(deleteError.message);
+    }
+  }
+
   async function addReminder(entryId: string) {
     const supabase = createClient();
     const { error: insertError } = await supabase.from("reminders").insert({
@@ -276,12 +336,20 @@ export function QuickCapture({
                     className="mt-1"
                   />
                   <p
-                    className={`whitespace-pre-wrap text-sm ${
+                    className={`flex-1 whitespace-pre-wrap text-sm ${
                       entry.finished_at ? "text-zinc-400 line-through" : ""
                     }`}
                   >
                     {entry.content}
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => deleteEntry(entry)}
+                    aria-label="Delete task"
+                    className="shrink-0 text-zinc-400 hover:text-red-500"
+                  >
+                    ×
+                  </button>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {ENTRY_CATEGORIES.map((category) => {
@@ -364,14 +432,22 @@ export function QuickCapture({
                               onChange={() => toggleSubtask(entry.id, subtask)}
                             />
                             <span
-                              className={
+                              className={`flex-1 ${
                                 subtask.is_done
                                   ? "text-zinc-400 line-through"
                                   : ""
-                              }
+                              }`}
                             >
                               {subtask.content}
                             </span>
+                            <button
+                              type="button"
+                              onClick={() => deleteSubtask(entry.id, subtask)}
+                              aria-label="Delete step"
+                              className="shrink-0 text-zinc-400 hover:text-red-500"
+                            >
+                              ×
+                            </button>
                           </li>
                         ))}
                       </ul>
