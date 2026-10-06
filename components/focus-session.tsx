@@ -229,6 +229,12 @@ export function FocusSession({
           <p className="text-4xl font-semibold tabular-nums">
             {formatTime(secondsLeft)}
           </p>
+          <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+            <div
+              className="h-full rounded-full bg-zinc-900 transition-all duration-1000 ease-linear dark:bg-zinc-100"
+              style={{ width: `${(secondsLeft / RUNWAY_SECONDS) * 100}%` }}
+            />
+          </div>
           <button
             onClick={skipRunway}
             className="text-sm text-zinc-500 underline"
@@ -244,6 +250,12 @@ export function FocusSession({
           <p className="text-5xl font-semibold tabular-nums">
             {formatTime(secondsLeft)}
           </p>
+          <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+            <div
+              className="h-full rounded-full bg-zinc-900 transition-all duration-1000 ease-linear dark:bg-zinc-100"
+              style={{ width: `${(secondsLeft / (plannedMinutes * 60)) * 100}%` }}
+            />
+          </div>
           <button
             onClick={stopEarly}
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
